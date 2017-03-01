@@ -24,7 +24,7 @@ export class SourceLocation {
 // into.
 
 export function getLineInfo(input, offset) {
-  for (let line = 1, cur = 0; ;) {
+  for (let line = 1, cur = 0; ; ) {
     lineBreakG.lastIndex = cur;
     const match = lineBreakG.exec(input);
     if (match && match.index < offset) {

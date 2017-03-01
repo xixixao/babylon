@@ -14,7 +14,7 @@ const frozenDeprecatedWildcardPluginList = [
   "functionBind",
   "functionSent",
   "dynamicImport",
-  "flow"
+  "flow",
 ];
 
 export default class Parser extends Tokenizer {
@@ -29,7 +29,9 @@ export default class Parser extends Tokenizer {
     this.filename = options.sourceFilename;
 
     // If enabled, skip leading hashbang line.
-    if (this.state.pos === 0 && this.input[0] === "#" && this.input[1] === "!") {
+    if (
+      this.state.pos === 0 && this.input[0] === "#" && this.input[1] === "!"
+    ) {
       this.skipLineComment(2);
     }
   }
@@ -43,7 +45,9 @@ export default class Parser extends Tokenizer {
   }
 
   hasPlugin(name: string): boolean {
-    if (this.plugins["*"] && frozenDeprecatedWildcardPluginList.indexOf(name) > -1) {
+    if (
+      this.plugins["*"] && frozenDeprecatedWildcardPluginList.indexOf(name) > -1
+    ) {
       return true;
     }
 
@@ -56,10 +60,12 @@ export default class Parser extends Tokenizer {
 
   loadAllPlugins() {
     // ensure flow plugin loads last, also ensure estree is not loaded with *
-    const pluginNames = Object.keys(plugins).filter((name) => name !== "flow" && name !== "estree");
+    const pluginNames = Object.keys(plugins).filter(
+      name => name !== "flow" && name !== "estree",
+    );
     pluginNames.push("flow");
 
-    pluginNames.forEach((name) => {
+    pluginNames.forEach(name => {
       const plugin = plugins[name];
       if (plugin) plugin(this);
     });
@@ -77,13 +83,13 @@ export default class Parser extends Tokenizer {
 
     if (pluginList.indexOf("flow") >= 0) {
       // ensure flow plugin loads last
-      pluginList = pluginList.filter((plugin) => plugin !== "flow");
+      pluginList = pluginList.filter(plugin => plugin !== "flow");
       pluginList.push("flow");
     }
 
     if (pluginList.indexOf("estree") >= 0) {
       // ensure estree plugin loads first
-      pluginList = pluginList.filter((plugin) => plugin !== "estree");
+      pluginList = pluginList.filter(plugin => plugin !== "estree");
       pluginList.unshift("estree");
     }
 
@@ -103,8 +109,8 @@ export default class Parser extends Tokenizer {
     type: "File",
     program: {
       type: "Program",
-      body: Array<Object>
-    }
+      body: Array<Object>,
+    },
   } {
     const file = this.startNode();
     const program = this.startNode();

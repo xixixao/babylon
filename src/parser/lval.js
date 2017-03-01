@@ -6,7 +6,7 @@ const pp = Parser.prototype;
 // Convert existing expression atom to assignable pattern
 // if possible.
 
-pp.toAssignable = function (node, isBinding, contextDescription) {
+pp.toAssignable = function(node, isBinding, contextDescription) {
   if (node) {
     switch (node.type) {
       case "Identifier":
@@ -20,9 +20,15 @@ pp.toAssignable = function (node, isBinding, contextDescription) {
         for (const prop of (node.properties: Array<Object>)) {
           if (prop.type === "ObjectMethod") {
             if (prop.kind === "get" || prop.kind === "set") {
-              this.raise(prop.key.start, "Object pattern can't contain getter or setter");
+              this.raise(
+                prop.key.start,
+                "Object pattern can't contain getter or setter",
+              );
             } else {
-              this.raise(prop.key.start, "Object pattern can't contain methods");
+              this.raise(
+                prop.key.start,
+                "Object pattern can't contain methods",
+              );
             }
           } else {
             this.toAssignable(prop, isBinding, "object destructuring pattern");
@@ -48,7 +54,10 @@ pp.toAssignable = function (node, isBinding, contextDescription) {
           node.type = "AssignmentPattern";
           delete node.operator;
         } else {
-          this.raise(node.left.end, "Only '=' operator can be used for specifying default value.");
+          this.raise(
+            node.left.end,
+            "Only '=' operator can be used for specifying default value.",
+          );
         }
         break;
 
@@ -57,7 +66,9 @@ pp.toAssignable = function (node, isBinding, contextDescription) {
 
       default: {
         const message = "Invalid left-hand side" +
-          (contextDescription ? " in " + contextDescription : /* istanbul ignore next */ "expression");
+          (contextDescription
+            ? " in " + contextDescription
+            : /* istanbul ignore next */ "expression");
         this.raise(node.start, message);
       }
     }
@@ -67,7 +78,7 @@ pp.toAssignable = function (node, isBinding, contextDescription) {
 
 // Convert list of expression atoms to binding list.
 
-pp.toAssignableList = function (exprList, isBinding, contextDescription) {
+pp.toAssignableList = function(exprList, isBinding, contextDescription) {
   let end = exprList.length;
   if (end) {
     const last = exprList[end - 1];
@@ -77,7 +88,11 @@ pp.toAssignableList = function (exprList, isBinding, contextDescription) {
       last.type = "RestElement";
       const arg = last.argument;
       this.toAssignable(arg, isBinding, contextDescription);
-      if (arg.type !== "Identifier" && arg.type !== "MemberExpression" && arg.type !== "ArrayPattern") {
+      if (
+        arg.type !== "Identifier" &&
+        arg.type !== "MemberExpression" &&
+        arg.type !== "ArrayPattern"
+      ) {
         this.unexpected(arg.start);
       }
       --end;
@@ -92,41 +107,41 @@ pp.toAssignableList = function (exprList, isBinding, contextDescription) {
 
 // Convert list of expression atoms to a list of
 
-pp.toReferencedList = function (exprList) {
+pp.toReferencedList = function(exprList) {
   return exprList;
 };
 
 // Parses spread element.
 
-pp.parseSpread = function (refShorthandDefaultPos) {
+pp.parseSpread = function(refShorthandDefaultPos) {
   const node = this.startNode();
   this.next();
   node.argument = this.parseMaybeAssign(false, refShorthandDefaultPos);
   return this.finishNode(node, "SpreadElement");
 };
 
-pp.parseRest = function () {
+pp.parseRest = function() {
   const node = this.startNode();
   this.next();
   node.argument = this.parseBindingIdentifier();
   return this.finishNode(node, "RestElement");
 };
 
-pp.shouldAllowYieldIdentifier = function () {
+pp.shouldAllowYieldIdentifier = function() {
   return this.match(tt._yield) && !this.state.strict && !this.state.inGenerator;
 };
 
-pp.parseBindingIdentifier = function () {
+pp.parseBindingIdentifier = function() {
   return this.parseIdentifier(this.shouldAllowYieldIdentifier());
 };
 
 // Parses lvalue (assignable) atom.
 
-pp.parseBindingAtom = function () {
+pp.parseBindingAtom = function() {
   switch (this.state.type) {
     case tt._yield:
       if (this.state.strict || this.state.inGenerator) this.unexpected();
-      // fall-through
+    // fall-through
     case tt.name:
       return this.parseIdentifier(true);
 
@@ -144,7 +159,7 @@ pp.parseBindingAtom = function () {
   }
 };
 
-pp.parseBindingList = function (close, allowEmpty) {
+pp.parseBindingList = function(close, allowEmpty) {
   const elts = [];
   let first = true;
   while (!this.eat(close)) {
@@ -177,13 +192,13 @@ pp.parseBindingList = function (close, allowEmpty) {
   return elts;
 };
 
-pp.parseAssignableListItemTypes = function (param) {
+pp.parseAssignableListItemTypes = function(param) {
   return param;
 };
 
 // Parses assignment pattern around given atom if possible.
 
-pp.parseMaybeDefault = function (startPos, startLoc, left) {
+pp.parseMaybeDefault = function(startPos, startLoc, left) {
   startLoc = startLoc || this.state.startLoc;
   startPos = startPos || this.state.start;
   left = left || this.parseBindingAtom();
@@ -198,7 +213,7 @@ pp.parseMaybeDefault = function (startPos, startLoc, left) {
 // Verify that a node is an lval — something that can be assigned
 // to.
 
-pp.checkLVal = function (expr, isBinding, checkClashes, contextDescription) {
+pp.checkLVal = function(expr, isBinding, checkClashes, contextDescription) {
   switch (expr.type) {
     case "Identifier":
       this.checkReservedWord(expr.name, expr.start, false, true);
@@ -226,19 +241,34 @@ pp.checkLVal = function (expr, isBinding, checkClashes, contextDescription) {
       break;
 
     case "MemberExpression":
-      if (isBinding) this.raise(expr.start, (isBinding ? "Binding" : "Assigning to") + " member expression");
+      if (isBinding)
+        this.raise(
+          expr.start,
+          (isBinding ? "Binding" : "Assigning to") + " member expression",
+        );
       break;
 
     case "ObjectPattern":
       for (let prop of (expr.properties: Array<Object>)) {
         if (prop.type === "ObjectProperty") prop = prop.value;
-        this.checkLVal(prop, isBinding, checkClashes, "object destructuring pattern");
+        this.checkLVal(
+          prop,
+          isBinding,
+          checkClashes,
+          "object destructuring pattern",
+        );
       }
       break;
 
     case "ArrayPattern":
       for (const elem of (expr.elements: Array<Object>)) {
-        if (elem) this.checkLVal(elem, isBinding, checkClashes, "array destructuring pattern");
+        if (elem)
+          this.checkLVal(
+            elem,
+            isBinding,
+            checkClashes,
+            "array destructuring pattern",
+          );
       }
       break;
 
@@ -255,9 +285,13 @@ pp.checkLVal = function (expr, isBinding, checkClashes, contextDescription) {
       break;
 
     default: {
-      const message = (isBinding ? /* istanbul ignore next */ "Binding invalid" : "Invalid") +
+      const message = (isBinding
+        ? /* istanbul ignore next */ "Binding invalid"
+        : "Invalid") +
         " left-hand side" +
-        (contextDescription ? " in " + contextDescription : /* istanbul ignore next */ "expression");
+        (contextDescription
+          ? " in " + contextDescription
+          : /* istanbul ignore next */ "expression");
       this.raise(expr.start, message);
     }
   }

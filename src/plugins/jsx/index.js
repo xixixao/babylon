@@ -27,7 +27,7 @@ tt.jsxTagStart.updateContext = function() {
 
 tt.jsxTagEnd.updateContext = function(prevType) {
   const out = this.state.context.pop();
-  if (out === tc.j_oTag && prevType === tt.slash || out === tc.j_cTag) {
+  if ((out === tc.j_oTag && prevType === tt.slash) || out === tc.j_cTag) {
     this.state.context.pop();
     this.state.exprAllowed = this.curContext() === tc.j_expr;
   } else {
@@ -106,7 +106,8 @@ pp.jsxReadString = function(quote) {
 
     const ch = this.input.charCodeAt(this.state.pos);
     if (ch === quote) break;
-    if (ch === 38) { // "&"
+    if (ch === 38) {
+      // "&"
       out += this.input.slice(chunkStart, this.state.pos);
       out += this.jsxReadEntity();
       chunkStart = this.state.pos;
@@ -135,8 +136,7 @@ pp.jsxReadEntity = function() {
       if (str[0] === "#") {
         if (str[1] === "x") {
           str = str.substr(2);
-          if (HEX_NUMBER.test(str))
-            entity = fromCodePoint(parseInt(str, 16));
+          if (HEX_NUMBER.test(str)) entity = fromCodePoint(parseInt(str, 16));
         } else {
           str = str.substr(1);
           if (DECIMAL_NUMBER.test(str))
@@ -155,7 +155,6 @@ pp.jsxReadEntity = function() {
   }
   return entity;
 };
-
 
 // Read a JSX identifier (valid tag or attribute name).
 //
@@ -185,7 +184,9 @@ function getQualifiedJSXName(object) {
   }
 
   if (object.type === "JSXMemberExpression") {
-    return getQualifiedJSXName(object.object) + "." + getQualifiedJSXName(object.property);
+    return getQualifiedJSXName(object.object) +
+      "." +
+      getQualifiedJSXName(object.property);
   }
 }
 
@@ -242,7 +243,10 @@ pp.jsxParseAttributeValue = function() {
     case tt.braceL:
       node = this.jsxParseExpressionContainer();
       if (node.expression.type === "JSXEmptyExpression") {
-        this.raise(node.start, "JSX attributes must only be assigned a non-empty expression");
+        this.raise(
+          node.start,
+          "JSX attributes must only be assigned a non-empty expression",
+        );
       } else {
         return node;
       }
@@ -254,7 +258,10 @@ pp.jsxParseAttributeValue = function() {
       return node;
 
     default:
-      this.raise(this.state.start, "JSX value should be either an expression or a quoted JSX text");
+      this.raise(
+        this.state.start,
+        "JSX value should be either an expression or a quoted JSX text",
+      );
   }
 };
 
@@ -263,8 +270,16 @@ pp.jsxParseAttributeValue = function() {
 // at the beginning of the next one (right brace).
 
 pp.jsxParseEmptyExpression = function() {
-  const node = this.startNodeAt(this.state.lastTokEnd, this.state.lastTokEndLoc);
-  return this.finishNodeAt(node, "JSXEmptyExpression", this.state.start, this.state.startLoc);
+  const node = this.startNodeAt(
+    this.state.lastTokEnd,
+    this.state.lastTokEndLoc,
+  );
+  return this.finishNodeAt(
+    node,
+    "JSXEmptyExpression",
+    this.state.start,
+    this.state.startLoc,
+  );
 };
 
 // Parse JSX spread child
@@ -280,7 +295,6 @@ pp.jsxParseSpreadChild = function() {
 };
 
 // Parses JSX expression enclosed into curly brackets.
-
 
 pp.jsxParseExpressionContainer = function() {
   const node = this.startNode();
@@ -342,10 +356,12 @@ pp.jsxParseElementAt = function(startPos, startLoc) {
   let closingElement = null;
 
   if (!openingElement.selfClosing) {
-    contents: for (;;) {
+    contents:
+    for (;;) {
       switch (this.state.type) {
         case tt.jsxTagStart:
-          startPos = this.state.start; startLoc = this.state.startLoc;
+          startPos = this.state.start;
+          startLoc = this.state.startLoc;
           this.next();
           if (this.eat(tt.slash)) {
             closingElement = this.jsxParseClosingElementAt(startPos, startLoc);
@@ -373,10 +389,15 @@ pp.jsxParseElementAt = function(startPos, startLoc) {
       }
     }
 
-    if (getQualifiedJSXName(closingElement.name) !== getQualifiedJSXName(openingElement.name)) {
+    if (
+      getQualifiedJSXName(closingElement.name) !==
+      getQualifiedJSXName(openingElement.name)
+    ) {
       this.raise(
         closingElement.start,
-        "Expected corresponding JSX closing tag for <" + getQualifiedJSXName(openingElement.name) + ">"
+        "Expected corresponding JSX closing tag for <" +
+          getQualifiedJSXName(openingElement.name) +
+          ">",
       );
     }
   }
@@ -385,7 +406,10 @@ pp.jsxParseElementAt = function(startPos, startLoc) {
   node.closingElement = closingElement;
   node.children = children;
   if (this.match(tt.relational) && this.state.value === "<") {
-    this.raise(this.state.start, "Adjacent JSX elements must be wrapped in an enclosing tag");
+    this.raise(
+      this.state.start,
+      "Adjacent JSX elements must be wrapped in an enclosing tag",
+    );
   }
   return this.finishNode(node, "JSXElement");
 };

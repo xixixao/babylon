@@ -6,20 +6,15 @@ import { types as tt } from "./types";
 
 export default class State {
   init(options: Object, input: string) {
-    this.strict = options.strictMode === false ? false : options.sourceType === "module";
+    this.strict = options.strictMode === false
+      ? false
+      : options.sourceType === "module";
 
     this.input = input;
 
     this.potentialArrowAt = -1;
 
-    this.inMethod =
-      this.inFunction =
-      this.inGenerator =
-      this.inAsync =
-      this.inPropertyName =
-      this.inType =
-      this.noAnonFunctionType =
-        false;
+    this.inMethod = this.inFunction = this.inGenerator = this.inAsync = this.inPropertyName = this.inType = this.noAnonFunctionType = false;
 
     this.labels = [];
 
@@ -30,8 +25,8 @@ export default class State {
     this.comments = [];
 
     this.trailingComments = [];
-    this.leadingComments  = [];
-    this.commentStack     = [];
+    this.leadingComments = [];
+    this.commentStack = [];
 
     this.pos = this.lineStart = 0;
     this.curLine = options.startLine;
@@ -140,7 +135,7 @@ export default class State {
   }
 
   clone(skipArrays?) {
-    const state = new State;
+    const state = new State();
     for (const key in this) {
       let val = this[key];
 

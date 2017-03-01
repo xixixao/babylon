@@ -3,7 +3,7 @@ import Parser from "../parser";
 
 const pp = Parser.prototype;
 
-pp.estreeParseRegExpLiteral = function ({ pattern, flags }) {
+pp.estreeParseRegExpLiteral = function({ pattern, flags }) {
   let regex = null;
   try {
     regex = new RegExp(pattern, flags);
@@ -17,23 +17,36 @@ pp.estreeParseRegExpLiteral = function ({ pattern, flags }) {
   return node;
 };
 
-pp.estreeParseLiteral = function (value) {
+pp.estreeParseLiteral = function(value) {
   return this.parseLiteral(value, "Literal");
 };
 
-pp.directiveToStmt = function (directive) {
+pp.directiveToStmt = function(directive) {
   const directiveLiteral = directive.value;
 
   const stmt = this.startNodeAt(directive.start, directive.loc.start);
-  const expression = this.startNodeAt(directiveLiteral.start, directiveLiteral.loc.start);
+  const expression = this.startNodeAt(
+    directiveLiteral.start,
+    directiveLiteral.loc.start,
+  );
 
   expression.value = directiveLiteral.value;
   expression.raw = directiveLiteral.extra.raw;
 
-  stmt.expression = this.finishNodeAt(expression, "Literal", directiveLiteral.end, directiveLiteral.loc.end);
+  stmt.expression = this.finishNodeAt(
+    expression,
+    "Literal",
+    directiveLiteral.end,
+    directiveLiteral.loc.end,
+  );
   stmt.directive = directiveLiteral.extra.raw.slice(1, -1);
 
-  return this.finishNodeAt(stmt, "ExpressionStatement", directive.end, directive.loc.end);
+  return this.finishNodeAt(
+    stmt,
+    "ExpressionStatement",
+    directive.end,
+    directive.loc.end,
+  );
 };
 
 function isSimpleProperty(node) {
@@ -43,9 +56,9 @@ function isSimpleProperty(node) {
     node.method === false;
 }
 
-export default function (instance) {
+export default function(instance) {
   instance.extend("checkDeclaration", function(inner) {
-    return function (node) {
+    return function(node) {
       if (isSimpleProperty(node)) {
         this.checkDeclaration(node.value);
       } else {
@@ -55,7 +68,7 @@ export default function (instance) {
   });
 
   instance.extend("checkGetterSetterParamCount", function() {
-    return function (prop) {
+    return function(prop) {
       const paramCount = prop.kind === "get" ? 0 : 1;
       if (prop.value.params.length !== paramCount) {
         const start = prop.start;
@@ -69,15 +82,15 @@ export default function (instance) {
   });
 
   instance.extend("checkLVal", function(inner) {
-    return function (expr, isBinding, checkClashes, ...args) {
+    return function(expr, isBinding, checkClashes, ...args) {
       switch (expr.type) {
         case "ObjectPattern":
-          expr.properties.forEach((prop) => {
+          expr.properties.forEach(prop => {
             this.checkLVal(
               prop.type === "Property" ? prop.value : prop,
               isBinding,
               checkClashes,
-              "object destructuring pattern"
+              "object destructuring pattern",
             );
           });
           break;
@@ -87,8 +100,8 @@ export default function (instance) {
     };
   });
 
-  instance.extend("checkPropClash", function () {
-    return function (prop, propHash) {
+  instance.extend("checkPropClash", function() {
+    return function(prop, propHash) {
       if (prop.computed || !isSimpleProperty(prop)) return;
 
       const key = prop.key;
@@ -96,17 +109,21 @@ export default function (instance) {
       const name = key.type === "Identifier" ? key.name : String(key.value);
 
       if (name === "__proto__") {
-        if (propHash.proto) this.raise(key.start, "Redefinition of __proto__ property");
+        if (propHash.proto)
+          this.raise(key.start, "Redefinition of __proto__ property");
         propHash.proto = true;
       }
     };
   });
 
-  instance.extend("isStrictBody", function () {
-    return function (node, isExpression) {
+  instance.extend("isStrictBody", function() {
+    return function(node, isExpression) {
       if (!isExpression && node.body.body.length > 0) {
         for (const directive of (node.body.body: Array<Object>)) {
-          if (directive.type === "ExpressionStatement" && directive.expression.type === "Literal") {
+          if (
+            directive.type === "ExpressionStatement" &&
+            directive.expression.type === "Literal"
+          ) {
             if (directive.expression.value === "use strict") return true;
           } else {
             // Break for the first non literal expression
@@ -119,8 +136,8 @@ export default function (instance) {
     };
   });
 
-  instance.extend("isValidDirective", function () {
-    return function (stmt) {
+  instance.extend("isValidDirective", function() {
+    return function(stmt) {
       return stmt.type === "ExpressionStatement" &&
         stmt.expression.type === "Literal" &&
         typeof stmt.expression.value === "string" &&
@@ -128,19 +145,19 @@ export default function (instance) {
     };
   });
 
-  instance.extend("parseBlockBody", function (inner) {
-    return function (node, ...args) {
+  instance.extend("parseBlockBody", function(inner) {
+    return function(node, ...args) {
       inner.call(this, node, ...args);
 
-      node.directives.reverse().forEach((directive) => {
+      node.directives.reverse().forEach(directive => {
         node.body.unshift(this.directiveToStmt(directive));
       });
       delete node.directives;
     };
   });
 
-  instance.extend("parseClassMethod", function (inner) {
-    return function (classBody, ...args) {
+  instance.extend("parseClassMethod", function(inner) {
+    return function(classBody, ...args) {
       inner.call(this, classBody, ...args);
 
       const body = classBody.body;
@@ -149,7 +166,7 @@ export default function (instance) {
   });
 
   instance.extend("parseExprAtom", function(inner) {
-    return function (...args) {
+    return function(...args) {
       switch (this.state.type) {
         case tt.regexp:
           return this.estreeParseRegExpLiteral(this.state.value);
@@ -174,7 +191,7 @@ export default function (instance) {
   });
 
   instance.extend("parseLiteral", function(inner) {
-    return function (...args) {
+    return function(...args) {
       const node = inner.call(this, ...args);
       node.raw = node.extra.raw;
       delete node.extra;
@@ -184,7 +201,7 @@ export default function (instance) {
   });
 
   instance.extend("parseMethod", function(inner) {
-    return function (node, ...args) {
+    return function(node, ...args) {
       let funcNode = this.startNode();
       funcNode.kind = node.kind; // provide kind, so inner method correctly sets state
       funcNode = inner.call(this, funcNode, ...args);
@@ -196,7 +213,7 @@ export default function (instance) {
   });
 
   instance.extend("parseObjectMethod", function(inner) {
-    return function (...args) {
+    return function(...args) {
       const node = inner.call(this, ...args);
 
       if (node) {
@@ -209,7 +226,7 @@ export default function (instance) {
   });
 
   instance.extend("parseObjectProperty", function(inner) {
-    return function (...args) {
+    return function(...args) {
       const node = inner.call(this, ...args);
 
       if (node) {
@@ -222,7 +239,7 @@ export default function (instance) {
   });
 
   instance.extend("toAssignable", function(inner) {
-    return function (node, isBinding, ...args) {
+    return function(node, isBinding, ...args) {
       if (isSimpleProperty(node)) {
         this.toAssignable(node.value, isBinding, ...args);
 
@@ -231,7 +248,10 @@ export default function (instance) {
         node.type = "ObjectPattern";
         for (const prop of (node.properties: Array<Object>)) {
           if (prop.kind === "get" || prop.kind === "set") {
-            this.raise(prop.key.start, "Object pattern can't contain getter or setter");
+            this.raise(
+              prop.key.start,
+              "Object pattern can't contain getter or setter",
+            );
           } else if (prop.method) {
             this.raise(prop.key.start, "Object pattern can't contain methods");
           } else {

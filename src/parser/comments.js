@@ -32,13 +32,13 @@ function last(stack) {
 
 const pp = Parser.prototype;
 
-pp.addComment = function (comment) {
+pp.addComment = function(comment) {
   if (this.filename) comment.loc.filename = this.filename;
   this.state.trailingComments.push(comment);
   this.state.leadingComments.push(comment);
 };
 
-pp.processComment = function (node) {
+pp.processComment = function(node) {
   if (node.type === "Program" && node.body.length > 0) return;
 
   const stack = this.state.commentStack;
@@ -64,7 +64,11 @@ pp.processComment = function (node) {
     }
   } else {
     const lastInStack = last(stack);
-    if (stack.length > 0 && lastInStack.trailingComments && lastInStack.trailingComments[0].start >= node.end) {
+    if (
+      stack.length > 0 &&
+      lastInStack.trailingComments &&
+      lastInStack.trailingComments[0].start >= node.end
+    ) {
       trailingComments = lastInStack.trailingComments;
       lastInStack.trailingComments = null;
     }
@@ -77,7 +81,9 @@ pp.processComment = function (node) {
 
   if (lastChild) {
     if (lastChild.leadingComments) {
-      if (lastChild !== node && last(lastChild.leadingComments).end <= node.start) {
+      if (
+        lastChild !== node && last(lastChild.leadingComments).end <= node.start
+      ) {
         node.leadingComments = lastChild.leadingComments;
         lastChild.leadingComments = null;
       } else {
@@ -96,7 +102,10 @@ pp.processComment = function (node) {
     if (last(this.state.leadingComments).end <= node.start) {
       if (this.state.commentPreviousNode) {
         for (j = 0; j < this.state.leadingComments.length; j++) {
-          if (this.state.leadingComments[j].end < this.state.commentPreviousNode.end) {
+          if (
+            this.state.leadingComments[j].end <
+            this.state.commentPreviousNode.end
+          ) {
             this.state.leadingComments.splice(j, 1);
             j--;
           }
@@ -145,7 +154,11 @@ pp.processComment = function (node) {
   this.state.commentPreviousNode = node;
 
   if (trailingComments) {
-    if (trailingComments.length && trailingComments[0].start >= node.start && last(trailingComments).end <= node.end) {
+    if (
+      trailingComments.length &&
+      trailingComments[0].start >= node.start &&
+      last(trailingComments).end <= node.end
+    ) {
       node.innerComments = trailingComments;
     } else {
       node.trailingComments = trailingComments;

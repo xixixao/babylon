@@ -30,5 +30,4 @@ export function parseExpression(input, options) {
   return parser.getExpression();
 }
 
-
 export { tokTypes };

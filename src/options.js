@@ -9,7 +9,7 @@ export const defaultOptions: {
   allowImportExportEverywhere: boolean,
   allowSuperOutsideMethod: boolean,
   plugins: Array<string>,
-  strictMode: any
+  strictMode: any,
 } = {
   // Source type ("script" or "module") for different semantics
   sourceType: "script",

@@ -9,7 +9,7 @@ const pp = Parser.prototype;
 // of the error message, and then raises a `SyntaxError` with that
 // message.
 
-pp.raise = function (pos, message) {
+pp.raise = function(pos, message) {
   const loc = getLineInfo(this.input, pos);
   message += ` (${loc.line}:${loc.column})`;
   const err = new SyntaxError(message);
