@@ -184,9 +184,11 @@ function getQualifiedJSXName(object) {
   }
 
   if (object.type === "JSXMemberExpression") {
-    return getQualifiedJSXName(object.object) +
+    return (
+      getQualifiedJSXName(object.object) +
       "." +
-      getQualifiedJSXName(object.property);
+      getQualifiedJSXName(object.property)
+    );
   }
 }
 
@@ -356,8 +358,7 @@ pp.jsxParseElementAt = function(startPos, startLoc) {
   let closingElement = null;
 
   if (!openingElement.selfClosing) {
-    contents:
-    for (;;) {
+    contents: for (;;) {
       switch (this.state.type) {
         case tt.jsxTagStart:
           startPos = this.state.start;
@@ -382,7 +383,6 @@ pp.jsxParseElementAt = function(startPos, startLoc) {
           }
 
           break;
-
         // istanbul ignore next - should never happen
         default:
           this.unexpected();

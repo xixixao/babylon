@@ -30,7 +30,9 @@ export default class Parser extends Tokenizer {
 
     // If enabled, skip leading hashbang line.
     if (
-      this.state.pos === 0 && this.input[0] === "#" && this.input[1] === "!"
+      this.state.pos === 0 &&
+      this.input[0] === "#" &&
+      this.input[1] === "!"
     ) {
       this.skipLineComment(2);
     }
@@ -46,7 +48,8 @@ export default class Parser extends Tokenizer {
 
   hasPlugin(name: string): boolean {
     if (
-      this.plugins["*"] && frozenDeprecatedWildcardPluginList.indexOf(name) > -1
+      this.plugins["*"] &&
+      frozenDeprecatedWildcardPluginList.indexOf(name) > -1
     ) {
       return true;
     }

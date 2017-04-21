@@ -81,7 +81,8 @@ tt.dollarBraceL.updateContext = function() {
 };
 
 tt.parenL.updateContext = function(prevType) {
-  const statementParens = prevType === tt._if ||
+  const statementParens =
+    prevType === tt._if ||
     prevType === tt._for ||
     prevType === tt._with ||
     prevType === tt._while;

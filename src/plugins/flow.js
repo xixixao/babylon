@@ -82,7 +82,7 @@ pp.flowParseDeclareClass = function(node) {
 pp.flowParseDeclareFunction = function(node) {
   this.next();
 
-  const id = node.id = this.parseIdentifier();
+  const id = (node.id = this.parseIdentifier());
 
   const typeNode = this.startNode();
   const typeContainer = this.startNode();
@@ -155,8 +155,8 @@ pp.flowParseDeclareModule = function(node) {
     node.id = this.parseIdentifier();
   }
 
-  const bodyNode = node.body = this.startNode();
-  const body = bodyNode.body = [];
+  const bodyNode = (node.body = this.startNode());
+  const body = (bodyNode.body = []);
   this.expect(tt.braceL);
   while (!this.match(tt.braceR)) {
     let bodyNode = this.startNode();
@@ -985,9 +985,11 @@ export default function(instance) {
   // export type
   instance.extend("shouldParseExportDeclaration", function(inner) {
     return function() {
-      return this.isContextual("type") ||
+      return (
+        this.isContextual("type") ||
         this.isContextual("interface") ||
-        inner.call(this);
+        inner.call(this)
+      );
     };
   });
 
@@ -1222,7 +1224,7 @@ export default function(instance) {
       }
       if (this.isContextual("implements")) {
         this.next();
-        const implemented = node.implements = [];
+        const implemented = (node.implements = []);
         do {
           const node = this.startNode();
           node.id = this.parseIdentifier();

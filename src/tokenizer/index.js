@@ -45,8 +45,8 @@ function codePointToString(code) {
     return String.fromCharCode(code);
   } else {
     return String.fromCharCode(
-      (code - 0x10000 >> 10) + 0xd800,
-      (code - 0x10000 & 1023) + 0xdc00,
+      ((code - 0x10000) >> 10) + 0xd800,
+      ((code - 0x10000) & 1023) + 0xdc00,
     );
   }
 }
@@ -117,10 +117,8 @@ export default class Tokenizer {
     if (!this.match(tt.num) && !this.match(tt.string)) return;
     this.state.pos = this.state.start;
     while (this.state.pos < this.state.lineStart) {
-      this.state.lineStart = this.input.lastIndexOf(
-        "\n",
-        this.state.lineStart - 2,
-      ) + 1;
+      this.state.lineStart =
+        this.input.lastIndexOf("\n", this.state.lineStart - 2) + 1;
       --this.state.curLine;
     }
     this.nextToken();
@@ -153,8 +151,8 @@ export default class Tokenizer {
   readToken(code) {
     // Identifier or keyword. '\uXXXX' sequences are allowed in
     // identifiers, so '\' also dispatches to that.
-    if (isIdentifierStart(code) || code === 92) {
-      /* '\' */ return this.readWord();
+    if (isIdentifierStart(code) || code === 92 /* '\' */) {
+      return this.readWord();
     } else {
       return this.getTokenFromCode(code);
     }
@@ -187,14 +185,15 @@ export default class Tokenizer {
   skipBlockComment() {
     const startLoc = this.state.curPosition();
     const start = this.state.pos;
-    const end = this.input.indexOf("*/", this.state.pos += 2);
+    const end = this.input.indexOf("*/", (this.state.pos += 2));
     if (end === -1) this.raise(this.state.pos - 2, "Unterminated comment");
 
     this.state.pos = end + 2;
     lineBreakG.lastIndex = start;
     let match;
     while (
-      (match = lineBreakG.exec(this.input)) && match.index < this.state.pos
+      (match = lineBreakG.exec(this.input)) &&
+      match.index < this.state.pos
     ) {
       ++this.state.curLine;
       this.state.lineStart = match.index + match[0].length;
@@ -213,7 +212,7 @@ export default class Tokenizer {
   skipLineComment(startSkip) {
     const start = this.state.pos;
     const startLoc = this.state.curPosition();
-    let ch = this.input.charCodeAt(this.state.pos += startSkip);
+    let ch = this.input.charCodeAt((this.state.pos += startSkip));
     while (
       this.state.pos < this.input.length &&
       ch !== 10 &&
@@ -239,8 +238,7 @@ export default class Tokenizer {
   // whitespace and comments, and.
 
   skipSpace() {
-    loop:
-    while (this.state.pos < this.input.length) {
+    loop: while (this.state.pos < this.input.length) {
       const ch = this.input.charCodeAt(this.state.pos);
       switch (ch) {
         case 32:
@@ -469,7 +467,6 @@ export default class Tokenizer {
       // by a digit or another two dots.
       case 46: // '.'
         return this.readToken_dot();
-
       // Punctuation tokens.
       case 40:
         ++this.state.pos;
@@ -544,16 +541,15 @@ export default class Tokenizer {
       case 56:
       case 57: // 1-9
         return this.readNumber(false);
-
       // Quotes produce strings.
       case 34:
       case 39: // '"', "'"
         return this.readString(code);
-
       // Operators are parsed inline in tiny state machines. '=' (61) is
       // often referred to. `finishOp` simply skips the amount of
       // characters it is given as second argument, and returns a token
       // of the type given by its first argument.
+
 
       case 47: // '/'
         return this.readToken_slash();
@@ -969,7 +965,7 @@ export default class Tokenizer {
 
     if (type.keyword && prevType === tt.dot) {
       this.state.exprAllowed = false;
-    } else if (update = type.updateContext) {
+    } else if ((update = type.updateContext)) {
       update.call(this, prevType);
     } else {
       this.state.exprAllowed = type.beforeExpr;

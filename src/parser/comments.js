@@ -82,7 +82,8 @@ pp.processComment = function(node) {
   if (lastChild) {
     if (lastChild.leadingComments) {
       if (
-        lastChild !== node && last(lastChild.leadingComments).end <= node.start
+        lastChild !== node &&
+        last(lastChild.leadingComments).end <= node.start
       ) {
         node.leadingComments = lastChild.leadingComments;
         lastChild.leadingComments = null;

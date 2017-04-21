@@ -50,10 +50,12 @@ pp.directiveToStmt = function(directive) {
 };
 
 function isSimpleProperty(node) {
-  return node &&
+  return (
+    node &&
     node.type === "Property" &&
     node.kind === "init" &&
-    node.method === false;
+    node.method === false
+  );
 }
 
 export default function(instance) {
@@ -138,10 +140,12 @@ export default function(instance) {
 
   instance.extend("isValidDirective", function() {
     return function(stmt) {
-      return stmt.type === "ExpressionStatement" &&
+      return (
+        stmt.type === "ExpressionStatement" &&
         stmt.expression.type === "Literal" &&
         typeof stmt.expression.value === "string" &&
-        (!stmt.expression.extra || !stmt.expression.extra.parenthesized);
+        (!stmt.expression.extra || !stmt.expression.extra.parenthesized)
+      );
     };
   });
 

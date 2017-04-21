@@ -36,7 +36,7 @@ pp.stmtToDirective = function(stmt) {
   const directive = this.startNodeAt(stmt.start, stmt.loc.start);
 
   const raw = this.input.slice(expr.start, expr.end);
-  const val = directiveLiteral.value = raw.slice(1, -1); // remove quotes
+  const val = (directiveLiteral.value = raw.slice(1, -1)); // remove quotes
 
   this.addExtra(directiveLiteral, "raw", raw);
   this.addExtra(directiveLiteral, "rawValue", val);
@@ -101,8 +101,8 @@ pp.parseStatement = function(declaration, topLevel) {
 
     case tt._let:
     case tt._const:
-      if (!declaration) this.unexpected();
-    // NOTE: falls through to _var
+      if (!declaration) this.unexpected(); // NOTE: falls through to _var
+
     case tt._var:
       return this.parseVarStatement(node, starttype);
 
@@ -117,7 +117,8 @@ pp.parseStatement = function(declaration, topLevel) {
     case tt._export:
     case tt._import:
       if (
-        this.hasPlugin("dynamicImport") && this.lookahead().type === tt.parenL
+        this.hasPlugin("dynamicImport") &&
+        this.lookahead().type === tt.parenL
       )
         break;
 
@@ -163,7 +164,9 @@ pp.parseStatement = function(declaration, topLevel) {
   const expr = this.parseExpression();
 
   if (
-    starttype === tt.name && expr.type === "Identifier" && this.eat(tt.colon)
+    starttype === tt.name &&
+    expr.type === "Identifier" &&
+    this.eat(tt.colon)
   ) {
     return this.parseLabeledStatement(node, maybeName, expr);
   } else {
@@ -370,7 +373,7 @@ pp.parseSwitchStatement = function(node) {
     if (this.match(tt._case) || this.match(tt._default)) {
       const isCase = this.match(tt._case);
       if (cur) this.finishNode(cur, "SwitchCase");
-      node.cases.push(cur = this.startNode());
+      node.cases.push((cur = this.startNode()));
       cur.consequent = [];
       this.next();
       if (isCase) {
@@ -516,9 +519,11 @@ pp.parseBlock = function(allowDirectives?) {
 };
 
 pp.isValidDirective = function(stmt) {
-  return stmt.type === "ExpressionStatement" &&
+  return (
+    stmt.type === "ExpressionStatement" &&
     stmt.expression.type === "StringLiteral" &&
-    !stmt.expression.extra.parenthesized;
+    !stmt.expression.extra.parenthesized
+  );
 };
 
 pp.parseBlockBody = function(node, allowDirectives, topLevel, end) {
@@ -608,7 +613,8 @@ pp.parseVar = function(node, isFor, kind) {
     if (this.eat(tt.eq)) {
       decl.init = this.parseMaybeAssign(isFor);
     } else if (
-      kind === tt._const && !(this.match(tt._in) || this.isContextual("of"))
+      kind === tt._const &&
+      !(this.match(tt._in) || this.isContextual("of"))
     ) {
       this.unexpected();
     } else if (
@@ -658,7 +664,10 @@ pp.parseFunction = function(
   }
 
   if (
-    isStatement && !optionalId && !this.match(tt.name) && !this.match(tt._yield)
+    isStatement &&
+    !optionalId &&
+    !this.match(tt.name) &&
+    !this.match(tt._yield)
   ) {
     this.unexpected();
   }
@@ -777,7 +786,8 @@ pp.parseClassBody = function(node) {
       }
     }
 
-    const isAsyncMethod = !this.match(tt.parenL) &&
+    const isAsyncMethod =
+      !this.match(tt.parenL) &&
       !method.computed &&
       method.key.type === "Identifier" &&
       method.key.name === "async";
@@ -809,7 +819,8 @@ pp.parseClassBody = function(node) {
       }
 
       // disallow invalid constructors
-      const isConstructor = !isConstructorCall &&
+      const isConstructor =
+        !isConstructorCall &&
         !method.static &&
         (key.name === "constructor" || // Identifier
           key.value === "constructor"); // Literal
@@ -827,7 +838,8 @@ pp.parseClassBody = function(node) {
       }
 
       // disallow static prototype method
-      const isStaticPrototype = method.static &&
+      const isStaticPrototype =
+        method.static &&
         (key.name === "prototype" || // Identifier
           key.value === "prototype"); // Literal
       if (isStaticPrototype) {
@@ -929,7 +941,8 @@ pp.parseExport = function(node) {
       return this.finishNode(node, "ExportAllDeclaration");
     }
   } else if (
-    this.hasPlugin("exportExtensions") && this.isExportDefaultSpecifier()
+    this.hasPlugin("exportExtensions") &&
+    this.isExportDefaultSpecifier()
   ) {
     const specifier = this.startNode();
     specifier.exported = this.parseIdentifier(true);
@@ -983,9 +996,11 @@ pp.parseExportDeclaration = function() {
 
 pp.isExportDefaultSpecifier = function() {
   if (this.match(tt.name)) {
-    return this.state.value !== "type" &&
+    return (
+      this.state.value !== "type" &&
       this.state.value !== "async" &&
-      this.state.value !== "interface";
+      this.state.value !== "interface"
+    );
   }
 
   if (!this.match(tt._default)) {
@@ -993,8 +1008,10 @@ pp.isExportDefaultSpecifier = function() {
   }
 
   const lookahead = this.lookahead();
-  return lookahead.type === tt.comma ||
-    (lookahead.type === tt.name && lookahead.value === "from");
+  return (
+    lookahead.type === tt.comma ||
+    (lookahead.type === tt.name && lookahead.value === "from")
+  );
 };
 
 pp.parseExportSpecifiersMaybe = function(node) {
@@ -1021,12 +1038,14 @@ pp.parseExportFrom = function(node, expect?) {
 };
 
 pp.shouldParseExportDeclaration = function(): boolean {
-  return this.state.type.keyword === "var" ||
+  return (
+    this.state.type.keyword === "var" ||
     this.state.type.keyword === "const" ||
     this.state.type.keyword === "let" ||
     this.state.type.keyword === "function" ||
     this.state.type.keyword === "class" ||
-    this.isContextual("async");
+    this.isContextual("async")
+  );
 };
 
 pp.checkExport = function(node, checkNames, isDefault) {
@@ -1056,7 +1075,8 @@ pp.checkExport = function(node, checkNames, isDefault) {
   }
 
   if (this.state.decorators.length) {
-    const isClass = node.declaration &&
+    const isClass =
+      node.declaration &&
       (node.declaration.type === "ClassDeclaration" ||
         node.declaration.type === "ClassExpression");
     if (!node.declaration || !isClass) {

@@ -322,7 +322,8 @@ pp.parseExprSubscripts = function(refShorthandDefaultPos) {
   const expr = this.parseExprAtom(refShorthandDefaultPos);
 
   if (
-    expr.type === "ArrowFunctionExpression" && expr.start === potentialArrowAt
+    expr.type === "ArrowFunctionExpression" &&
+    expr.start === potentialArrowAt
   ) {
     return expr;
   }
@@ -360,7 +361,8 @@ pp.parseSubscripts = function(base, startPos, startLoc, noCalls) {
       this.expect(tt.bracketR);
       base = this.finishNode(node, "MemberExpression");
     } else if (!noCalls && this.match(tt.parenL)) {
-      const possibleAsync = this.state.potentialArrowAt === base.start &&
+      const possibleAsync =
+        this.state.potentialArrowAt === base.start &&
         base.type === "Identifier" &&
         base.name === "async" &&
         !this.canInsertSemicolon();
@@ -606,7 +608,7 @@ pp.parseExprAtom = function(refShorthandDefaultPos) {
       node = this.startNode();
       this.next();
       node.object = null;
-      const callee = node.callee = this.parseNoCallExpr();
+      const callee = (node.callee = this.parseNoCallExpr());
       if (callee.type === "MemberExpression") {
         return this.finishNode(node, "BindExpression");
       } else {
@@ -625,7 +627,9 @@ pp.parseFunctionExpression = function() {
   const node = this.startNode();
   const meta = this.parseIdentifier(true);
   if (
-    this.state.inGenerator && this.eat(tt.dot) && this.hasPlugin("functionSent")
+    this.state.inGenerator &&
+    this.eat(tt.dot) &&
+    this.hasPlugin("functionSent")
   ) {
     return this.parseMetaProperty(node, meta, "sent");
   } else {
@@ -826,7 +830,7 @@ pp.parseTemplate = function() {
     this.expect(tt.dollarBraceL);
     node.expressions.push(this.parseExpression());
     this.expect(tt.braceR);
-    node.quasis.push(curElt = this.parseTemplateElement());
+    node.quasis.push((curElt = this.parseTemplateElement()));
   }
   this.next();
   return this.finishNode(node, "TemplateLiteral");
@@ -882,7 +886,8 @@ pp.parseObj = function(isPattern, refShorthandDefaultPos) {
         } else if (this.eat(tt.braceR)) {
           break;
         } else if (
-          this.match(tt.comma) && this.lookahead().type === tt.braceR
+          this.match(tt.comma) &&
+          this.lookahead().type === tt.braceR
         ) {
           // TODO: temporary rollback
           // this.unexpected(position, "A trailing comma is not permitted after the rest element");
@@ -969,15 +974,17 @@ pp.parseObj = function(isPattern, refShorthandDefaultPos) {
 };
 
 pp.isGetterOrSetterMethod = function(prop, isPattern) {
-  return !isPattern &&
+  return (
+    !isPattern &&
     !prop.computed &&
     prop.key.type === "Identifier" &&
     (prop.key.name === "get" || prop.key.name === "set") &&
     (this.match(tt.string) || // get "string"() {}
-      this.match(tt.num) || // get 1() {}
-      this.match(tt.bracketL) || // get ["string"]() {}
-      this.match(tt.name) || // get foo() {}
-      this.state.type.keyword); // get debugger() {}
+    this.match(tt.num) || // get 1() {}
+    this.match(tt.bracketL) || // get ["string"]() {}
+    this.match(tt.name) || // get foo() {}
+      this.state.type.keyword) // get debugger() {}
+  );
 };
 
 // get methods aren't allowed to have any parameters
@@ -1065,7 +1072,8 @@ pp.parseObjPropValue = function(
   isPattern,
   refShorthandDefaultPos,
 ) {
-  const node = this.parseObjectMethod(prop, isGenerator, isAsync, isPattern) ||
+  const node =
+    this.parseObjectMethod(prop, isGenerator, isAsync, isPattern) ||
     this.parseObjectProperty(
       prop,
       startPos,

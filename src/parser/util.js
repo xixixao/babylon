@@ -11,7 +11,7 @@ const pp = Parser.prototype;
 pp.addExtra = function(node, key, val) {
   if (!node) return;
 
-  const extra = node.extra = node.extra || {};
+  const extra = (node.extra = node.extra || {});
   extra[key] = val;
 };
 
@@ -52,9 +52,11 @@ pp.expectContextual = function(name, message) {
 // Test whether a semicolon can be inserted at the current position.
 
 pp.canInsertSemicolon = function() {
-  return this.match(tt.eof) ||
+  return (
+    this.match(tt.eof) ||
     this.match(tt.braceR) ||
-    lineBreak.test(this.input.slice(this.state.lastTokEnd, this.state.start));
+    lineBreak.test(this.input.slice(this.state.lastTokEnd, this.state.start))
+  );
 };
 
 // TODO
@@ -82,7 +84,9 @@ pp.expect = function(type, pos) {
 
 pp.unexpected = function(pos, messageOrType = "Unexpected token") {
   if (
-    messageOrType && typeof messageOrType === "object" && messageOrType.label
+    messageOrType &&
+    typeof messageOrType === "object" &&
+    messageOrType.label
   ) {
     messageOrType = `Unexpected token, expected ${messageOrType.label}`;
   }

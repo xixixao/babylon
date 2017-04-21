@@ -65,7 +65,8 @@ pp.toAssignable = function(node, isBinding, contextDescription) {
         if (!isBinding) break;
 
       default: {
-        const message = "Invalid left-hand side" +
+        const message =
+          "Invalid left-hand side" +
           (contextDescription
             ? " in " + contextDescription
             : /* istanbul ignore next */ "expression");
@@ -285,9 +286,8 @@ pp.checkLVal = function(expr, isBinding, checkClashes, contextDescription) {
       break;
 
     default: {
-      const message = (isBinding
-        ? /* istanbul ignore next */ "Binding invalid"
-        : "Invalid") +
+      const message =
+        (isBinding ? /* istanbul ignore next */ "Binding invalid" : "Invalid") +
         " left-hand side" +
         (contextDescription
           ? " in " + contextDescription
