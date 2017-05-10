@@ -36,6 +36,8 @@ pp.toAssignable = function (node, isBinding, contextDescription) {
 
       case "SpreadProperty":
         node.type = "RestProperty";
+        const arg = node.argument;
+        this.toAssignable(arg, isBinding, contextDescription);
         break;
 
       case "ArrayExpression":
@@ -77,7 +79,11 @@ pp.toAssignableList = function (exprList, isBinding, contextDescription) {
       last.type = "RestElement";
       const arg = last.argument;
       this.toAssignable(arg, isBinding, contextDescription);
-      if (arg.type !== "Identifier" && arg.type !== "MemberExpression" && arg.type !== "ArrayPattern") {
+      if (
+        arg.type !== "Identifier" &&
+        arg.type !== "MemberExpression" &&
+        arg.type !== "ArrayPattern"
+      ) {
         this.unexpected(arg.start);
       }
       --end;
