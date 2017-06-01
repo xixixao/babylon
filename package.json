@@ -36,7 +36,7 @@
     "eslint-config-babel": "^6.0.0",
     "eslint-plugin-flowtype": "^2.20.0",
     "flow-bin": "^0.47.0",
-    "nyc": "^10.0.0",
+    "nyc": "^11.0.1",
     "rimraf": "^2.5.4",
     "rollup": "^0.41.0",
     "rollup-plugin-babel": "^2.6.1",
