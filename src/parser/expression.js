@@ -173,7 +173,7 @@ export default class ExpressionParser extends LValParser {
       const node = this.startNodeAt(startPos, startLoc);
       node.test = expr;
       node.consequent = this.parseMaybeAssign();
-      this.expect(tt.colon);
+      this.expectLenient(tt.colon);
       node.alternate = this.parseMaybeAssign(noIn);
       return this.finishNode(node, "ConditionalExpression");
     }
@@ -312,7 +312,7 @@ export default class ExpressionParser extends LValParser {
         node.object = base;
         node.property = this.parseExpression();
         node.computed = true;
-        this.expect(tt.bracketR);
+        this.expectLenient(tt.bracketR);
         base = this.finishNode(node, "MemberExpression");
       } else if (!noCalls && this.match(tt.parenL)) {
         const possibleAsync = this.state.potentialArrowAt === base.start && base.type === "Identifier" && base.name === "async" && !this.canInsertSemicolon();
@@ -360,7 +360,7 @@ export default class ExpressionParser extends LValParser {
       if (first) {
         first = false;
       } else {
-        this.expect(tt.comma);
+        this.expectLenient(tt.comma);
         if (this.eat(close)) break;
       }
 
@@ -801,7 +801,7 @@ export default class ExpressionParser extends LValParser {
       if (first) {
         first = false;
       } else {
-        this.expect(tt.comma);
+        this.expectLenient(tt.comma);
         if (this.eat(tt.braceR)) break;
       }
 
@@ -1095,7 +1095,7 @@ export default class ExpressionParser extends LValParser {
       if (first) {
         first = false;
       } else {
-        this.expect(tt.comma);
+        this.expectLenient(tt.comma);
         if (this.eat(close)) break;
       }
 

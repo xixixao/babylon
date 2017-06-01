@@ -345,7 +345,7 @@ export default class StatementParser extends ExpressionParser {
           sawDefault = true;
           cur.test = null;
         }
-        this.expect(tt.colon);
+        this.expectLenient(tt.colon);
       } else {
         if (cur) {
           cur.consequent.push(this.parseStatement(true));
@@ -379,10 +379,10 @@ export default class StatementParser extends ExpressionParser {
       const clause = this.startNode();
       this.next();
 
-      this.expect(tt.parenL);
+      this.expectLenient(tt.parenL);
       clause.param = this.parseBindingAtom();
       this.checkLVal(clause.param, true, Object.create(null), "catch clause");
-      this.expect(tt.parenR);
+      this.expectLenient(tt.parenR);
 
       clause.body = this.parseBlock();
       node.handler = this.finishNode(clause, "CatchClause");
@@ -1058,7 +1058,7 @@ export default class StatementParser extends ExpressionParser {
       if (first) {
         first = false;
       } else {
-        this.expect(tt.comma);
+        this.expectLenient(tt.comma);
         if (this.eat(tt.braceR)) break;
       }
 
@@ -1130,7 +1130,7 @@ export default class StatementParser extends ExpressionParser {
           this.unexpected(null, "ES2015 named imports do not destructure. Use another statement for destructuring after the import.");
         }
 
-        this.expect(tt.comma);
+        this.expectLenient(tt.comma);
         if (this.eat(tt.braceR)) break;
       }
 

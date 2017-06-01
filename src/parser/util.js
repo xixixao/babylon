@@ -79,6 +79,14 @@ export default class UtilParser extends Tokenizer {
     this.eat(type) || this.unexpected(pos, type);
   }
 
+  expectLenient(type: TokenType, pos?: ?number): void {
+    if (this.hasPlugin("lenient") && !this.match(type)) {
+      this.insertFakeToken(type);
+    } else {
+      this.eat(type) || this.unexpected(pos, type);
+    }
+  }
+
   // Raise an unexpected token error. Can take the expected token type
   // instead of a message string.
 

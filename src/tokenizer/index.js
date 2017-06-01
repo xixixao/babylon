@@ -295,6 +295,22 @@ export default class Tokenizer extends LocationParser {
     this.updateContext(prevType);
   }
 
+  insertFakeToken(type: TokenType): void {
+    // const prevType = this.state.type;
+    // this.state.type = type;
+    // this.state.value = undefined;
+
+    // this.updateContext(prevType);
+    const state = {
+      type,
+      value: undefined,
+      start: this.state.start,
+      end: this.state.end,
+      loc: new SourceLocation(this.state.startLoc, this.state.endLoc)
+    };
+    this.state.tokens.push(new Token(state));
+  }
+
   // ### Token reading
 
   // This is the function that is called to fetch the next token. It
